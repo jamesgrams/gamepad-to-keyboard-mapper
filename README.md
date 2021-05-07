@@ -1,6 +1,7 @@
 # Gamepad to Keyboard Mapper
 
 This Chrome extension will allow you to map Gamepad buttons and axes to keyboard buttons.
+Note: You may want to run chrome with the `--silent-debugger-extension-api` flag to disable the info bar when this extension is in use. However, you should be aware that flag may open the door for malicious extensions to control your device more than you may like without your knowledge.
 
 ## Usage
 
