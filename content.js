@@ -137,7 +137,19 @@ window.addEventListener("load", function() {
     if( mapping ) {
         for( var i=0; i<mapping.length; i++ ) {
             // everything is a string until the background page
-            chrome.runtime.sendMessage({ key: parseInt(mapping[i].key), down: down });
+            if( ["INPUT", "TEXTAREA"].indexOf(document.activeElement.tagName) !== -1 ) {
+                chrome.runtime.sendMessage({ key: parseInt(mapping[i].keyCode), down: down });
+            }
+            else {
+                document.activeElement.dispatchEvent(new KeyboardEvent(down ? "keydown" : "keyup", {
+                    key: mapping[i].key,
+                    keyCode: parseInt(mapping[i].keyCode),
+                    code: mapping[i].code,
+                    which: parseInt(mapping[i].keyCode),
+                    bubbles: true,
+                    cancelable: true
+                }));
+            }
         }
     }
 }

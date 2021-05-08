@@ -14,7 +14,7 @@ window.addEventListener("load", function() {
     chrome.storage.local.get(["controllerMap"], function(result) {
         var controllerMap = result.controllerMap;
         for(var i=0; i<controllerMap.length; i++ ) {
-            createMappingInput( controllerMap[i].button, controllerMap[i].key, controllerMap[i].keyDisplayValue );
+            createMappingInput( controllerMap[i].button, controllerMap[i].keyCode, controllerMap[i].key, controllerMap[i].code );
         }
         console.log(result);
     });
@@ -30,13 +30,15 @@ window.addEventListener("load", function() {
 /**
  * Create a mapping.
  * @param {string} [button] - gamepad button/axis<direction>. 
- * @param {string} [key] - Keyboard charcode.
- * @param {string} [keyDisplayValue] - The key value to dispaly.
+ * @param {string} [keyCode] - Keyboard charcode.
+ * @param {string} [key] - The key value to display.
+ * @param {string} [code] - The keyboard "code" (e.g. KeyA);
  */
-function createMappingInput( button, key, keyDisplayValue ) {
+function createMappingInput( button, keyCode, key, code ) {
     if( button === undefined ) button = "";
+    if( keyCode === undefined ) keyCode = "";
     if( key === undefined ) key = "";
-    if( keyDisplayValue === undefined ) keyDisplayValue = "";
+    if( code === undefined ) code = "";
 
     var section = document.createElement("div");
     section.classList.add("mapping");
@@ -68,18 +70,18 @@ function createMappingInput( button, key, keyDisplayValue ) {
     var keyboardInput = document.createElement("input");
     keyboardInput.classList.add("keyboard-input");
     keyboardInput.setAttribute("type", "search");
-    keyboardInput.setAttribute("data-keycode", key);
-    keyboardInput.value = keyDisplayValue;
+    keyboardInput.setAttribute("data-keycode", keyCode);
+    keyboardInput.setAttribute("data-code",code);
+    keyboardInput.value = key;
     keyboardInput.onkeydown = function(e) {
         keyboardInput.value = e.key;
-        console.log(e);
-        keyboardInput.setAttribute("data-keycode", e.key.length === 1 ? e.key.charCodeAt(0) : e.keyCode);
-        console.log(e);
+        keyboardInput.setAttribute("data-keycode", e.key.match(/[a-z]/) ? e.key.charCodeAt(0) : e.keyCode); // charCodeAt gets lowercase
+        keyboardInput.setAttribute("data-code", e.code);
         saveMapping();
         e.preventDefault();
-        var keyboardInputs = document.querySelectorAll(".keyboard-input");
-        var index = Array.from(keyboardInputs).indexOf(keyboardInput);
-        focusNextInput(keyboardInputs[index + 1]);
+        var allInputs = document.querySelectorAll("#mappings input");
+        var index = Array.from(allInputs).indexOf(keyboardInput);
+        focusNextInput(allInputs[index + 1]);
     };
     keyboardLabel.appendChild(keyboardInput);
     section.appendChild(keyboardLabel);
@@ -105,13 +107,15 @@ function saveMapping() {
         var button = mappings[i].querySelector(".gamepad-input").value;
         if( button ) {
             var keyboardInput =  mappings[i].querySelector(".keyboard-input");
-            var key = keyboardInput.getAttribute("data-keycode");
-            var keyDisplayValue = keyboardInput.value;
+            var keyCode = keyboardInput.getAttribute("data-keycode");
+            var key = keyboardInput.value;
+            var code = keyboardInput.getAttribute("data-code");
             if( key ) {
                 controllerMap.push({
                     button: button,
+                    keyCode: keyCode,
                     key: key,
-                    keyDisplayValue: keyDisplayValue
+                    code: code
                 });
             }
         }
@@ -196,6 +200,7 @@ function saveMapping() {
             }
 
             var inputs = document.querySelectorAll(".gamepad-input");
+            var allInputs = document.querySelectorAll("#mappings input");
             if( !focusInterval ) {
                 for( var j=0; j<inputs.length; j++ ) {
                     if( inputs[j] === document.activeElement ) {
@@ -213,7 +218,8 @@ function saveMapping() {
                             if( gamepadButtonsPressed[i][currentButton] ) {
                                 // button
                                 inputs[j].value = currentButton;
-                                focusNextInput(inputs[j + 1]);
+                                var index = Array.from(allInputs).indexOf(inputs[j]);
+                                focusNextInput(allInputs[index + 1]);
                             }
                         }
                     }
