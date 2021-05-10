@@ -75,7 +75,7 @@ function createMappingInput( button, keyCode, key, code ) {
     keyboardInput.value = key;
     keyboardInput.onkeydown = function(e) {
         keyboardInput.value = e.key;
-        keyboardInput.setAttribute("data-keycode", e.key.match(/[a-z]/) ? e.key.charCodeAt(0) : e.keyCode); // charCodeAt gets lowercase
+        keyboardInput.setAttribute("data-keycode", e.key.match(/^[a-z]$/) ? e.key.charCodeAt(0) : e.keyCode); // charCodeAt gets lowercase
         keyboardInput.setAttribute("data-code", e.code);
         saveMapping();
         e.preventDefault();
