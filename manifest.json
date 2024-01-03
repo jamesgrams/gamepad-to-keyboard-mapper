@@ -1,6 +1,6 @@
 {
     "name": "Gamepad to Keyboard Mapper",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "manifest_version": 3,
     "description": "Map gamepad buttons and axes to keyboard keys",
     "homepage_url": "https://game103.net",
